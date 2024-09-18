@@ -1,0 +1,404 @@
+zabbix_export:
+  version: '6.4'
+  template_groups:
+    - uuid: a571c0d144b14fd4a87a9d9b2aa9fcd6
+      name: Templates/Applications
+  templates:
+    - uuid: 7f2819d56ab945f691cae959ddfb15f3
+      template: 'Template App Swoole by Zabbix agent'
+      name: 'Template App Swoole by Zabbix agent'
+      description: |
+        Get metrics from swoole server statistics using Zabbix agent.
+        https://www.php.net/manual/en/swoole-server.stats.php
+      groups:
+        - name: Templates/Applications
+      items:
+        - uuid: f1da6a20c6584701839a828dd0eba396
+          name: 'Swoole: service status'
+          key: 'net.tcp.service[http,"{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          valuemap:
+            name: 'Service state'
+          preprocessing:
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 10s
+          tags:
+            - tag: Application
+              value: Swoole
+          triggers:
+            - uuid: 7190b5cd5f9141438b612b9dff93f4c3
+              expression: 'last(/Template App Swoole by Zabbix agent/net.tcp.service[http,"{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PORT}"])=0'
+              name: 'Swoole service is down.'
+              priority: HIGH
+              manual_close: 'YES'
+              tags:
+                - tag: Application
+                  value: Swoole
+        - uuid: 2cd795bf03554e2c9b54d5a47e3b9595
+          name: 'Swoole: process cpu utilization'
+          key: 'proc.cpu.util[,{$SWOOLE.PROCESS_USER},,{$SWOOLE.PROCESS_CDMLINE}]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 519bd486e1de422b8fa0aae82d93bab1
+          name: 'Swoole: Memory usage (rss)'
+          key: 'proc.mem[,{$SWOOLE.PROCESS_USER},,{$SWOOLE.PROCESS_CDMLINE},rss]'
+          units: B
+          description: 'Resident set size memory used by process in bytes.'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 9b207c89dcad4a3daff98ddda573a7b7
+          name: 'Swoole: Memory usage (vsize)'
+          key: 'proc.mem[,{$SWOOLE.PROCESS_USER},,{$SWOOLE.PROCESS_CDMLINE},vsize]'
+          units: B
+          description: 'Virtual memory size used by process in bytes.'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 90f80dc3bbee46cb9c092cb138b1f929
+          name: 'Swoole: aborted connection count'
+          type: DEPENDENT
+          key: swoole.abort.count
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.abort_count
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+          triggers:
+            - uuid: 1aa6b043896c4acfa3f1a90c3e3366ad
+              expression: 'changecount(/Template App Swoole by Zabbix agent/swoole.abort.count,10m,"inc")>9'
+              name: 'Swoole: aborted connections happening.'
+              priority: WARNING
+              description: 'The count of aborted connections has been rising for the last 10 minutes.'
+              dependencies:
+                - name: 'Swoole: failed to fetch stats.'
+                  expression: 'nodata(/Template App Swoole by Zabbix agent/web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"],5m)=1'
+              tags:
+                - tag: Application
+                  value: Swoole
+        - uuid: 88257d35dbe144a08d4a09bb8a21b294
+          name: 'Swoole: accepted connection count'
+          type: DEPENDENT
+          key: swoole.accept.count
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.accept_count
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 0fb085b1a9e6416ebb5cf93b781a4717
+          name: 'Swoole: closed connection count'
+          type: DEPENDENT
+          key: swoole.close.count
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.close_count
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 1b57f6bf96f84212a22b7cd673144f29
+          name: 'Swoole: number of connections'
+          type: DEPENDENT
+          key: swoole.connection.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.connection_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: e2e044dbe93b46a0996fd8f379fa16c7
+          name: 'Swoole: dispatch count'
+          type: DEPENDENT
+          key: swoole.dispatch.count
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.dispatch_count
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 8db52015a87348e98e718e08ee627f72
+          name: 'Swoole: number of idle workers'
+          type: DEPENDENT
+          key: swoole.idle.worker.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.idle_worker_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+          triggers:
+            - uuid: 78667e7df90f404ea692caba6e6a82fb
+              expression: 'last(/Template App Swoole by Zabbix agent/swoole.idle.worker.num,#5)<1'
+              name: 'Swoole: no idle workers'
+              priority: AVERAGE
+              description: 'Swoole server had no idle workers for the last 5 minutes.'
+              dependencies:
+                - name: 'Swoole: failed to fetch stats.'
+                  expression: 'nodata(/Template App Swoole by Zabbix agent/web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"],5m)=1'
+              tags:
+                - tag: Application
+                  value: Swoole
+        - uuid: 794ccb0636e2427f8a76bc2100e5df11
+          name: 'Swoole: max_fd'
+          type: DEPENDENT
+          key: swoole.max.fd
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.max_fd
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 591e6db2229046d6ab2ca5b05f10c66c
+          name: 'Swoole: min_fd'
+          type: DEPENDENT
+          key: swoole.min.fd
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.min_fd
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 31d737d758144d2c95df05a9ad4d301a
+          name: 'Swoole: request count'
+          type: DEPENDENT
+          key: swoole.request.count
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.request_count
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 36bcc6061a744d76b75235f50a7cb33f
+          name: 'Swoole: response count'
+          type: DEPENDENT
+          key: swoole.response.count
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.response_count
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 3d6050c8cecb44a986b16573bc944c94
+          name: 'Swoole: server startup timestamp'
+          type: DEPENDENT
+          key: swoole.startup.timestamp
+          history: 7d
+          units: unixtime
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.start_time
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 57e6cc2a346c447a9e009049ca404294
+          name: 'Swoole: number of idle task workers'
+          type: DEPENDENT
+          key: swoole.task.idle.worker.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.task_idle_worker_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 0feedee2a29e46b49f280372fb2ebd4f
+          name: 'Swoole: number of task workers'
+          type: DEPENDENT
+          key: swoole.task.worker.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.task_worker_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 0f0ec280230e45ed8d7da787d5900510
+          name: 'Swoole: total bytes received'
+          type: DEPENDENT
+          key: swoole.total.recv.bytes
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.total_recv_bytes
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: b741a9f2a87d45c798db53e752aa3cb3
+          name: 'Swoole: total bytes sent'
+          type: DEPENDENT
+          key: swoole.total.send.bytes
+          units: B
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.total_send_bytes
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: e12ba62ded504440b9fa60f38b0df455
+          name: 'Swoole: number of user workers'
+          type: DEPENDENT
+          key: swoole.user.worker.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.user_worker_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 1a1d7c373c41429a98f3a2c49b1da9d4
+          name: 'Swoole: number of workers'
+          type: DEPENDENT
+          key: swoole.worker.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.worker_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 33f1450cea6a49edaa646020bcd60108
+          name: 'Swoole: get raw stats'
+          key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          history: 1h
+          value_type: TEXT
+          description: 'Get raw swoole stats json object.'
+          preprocessing:
+            - type: REGEX
+              parameters:
+                - '\n\s?\n(.*)'
+                - \1
+          tags:
+            - tag: Application
+              value: 'Zabbix raw items'
+          triggers:
+            - uuid: 7b96581b90ef46fa8084241d7968d295
+              expression: 'nodata(/Template App Swoole by Zabbix agent/web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"],5m)=1'
+              name: 'Swoole: failed to fetch stats.'
+              priority: WARNING
+              description: 'No swoole status data was received for 5 minutes.'
+              dependencies:
+                - name: 'Swoole service is down.'
+                  expression: 'last(/Template App Swoole by Zabbix agent/net.tcp.service[http,"{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PORT}"])=0'
+              tags:
+                - tag: Application
+                  value: Swoole
+      tags:
+        - tag: Application
+          value: Swoole
+      macros:
+        - macro: '{$SWOOLE.PROCESS_CDMLINE}'
+          description: 'swoole server process cmdline (as in `ps`)'
+        - macro: '{$SWOOLE.PROCESS_USER}'
+          description: 'swoole server process user'
+        - macro: '{$SWOOLE.SERVER_STATUS.HOST}'
+          value: localhost
+          description: 'swoole server address'
+        - macro: '{$SWOOLE.SERVER_STATUS.PATH}'
+          value: /swoole-stats
+          description: 'swoole status uri'
+        - macro: '{$SWOOLE.SERVER_STATUS.PORT}'
+          value: '8000'
+          description: 'swoole server port'
+      valuemaps:
+        - uuid: fc2d73a4382f4e7094375611cb722961
+          name: 'Service state'
+          mappings:
+            - value: '0'
+              newvalue: Down
+            - value: '1'
+              newvalue: Up
+  graphs:
+    - uuid: 7e76f27683c742ddb88945019c4c0f19
+      name: 'Swoole: memory usage'
+      ymin_type_1: FIXED
+      graph_items:
+        - color: 4000FF
+          calc_fnc: ALL
+          item:
+            host: 'Template App Swoole by Zabbix agent'
+            key: 'proc.mem[,{$SWOOLE.PROCESS_USER},,{$SWOOLE.PROCESS_CDMLINE},rss]'
+        - sortorder: '1'
+          color: 00FF00
+          calc_fnc: ALL
+          item:
+            host: 'Template App Swoole by Zabbix agent'
+            key: 'proc.mem[,{$SWOOLE.PROCESS_USER},,{$SWOOLE.PROCESS_CDMLINE},vsize]'
+    - uuid: c0d67f81a2284ce0b503dae112f7d102
+      name: 'Swoole: process cpu utilization'
+      ymin_type_1: FIXED
+      ymax_type_1: FIXED
+      graph_items:
+        - color: FF0000
+          item:
+            host: 'Template App Swoole by Zabbix agent'
+            key: 'proc.cpu.util[,{$SWOOLE.PROCESS_USER},,{$SWOOLE.PROCESS_CDMLINE}]'
+    - uuid: 81ef88555fb34d4ba7be3e4b51deafc0
+      name: 'Swoole: workers count'
+      ymin_type_1: FIXED
+      ymax_type_1: ITEM
+      ymax_item_1:
+        host: 'Template App Swoole by Zabbix agent'
+        key: swoole.worker.num
+      graph_items:
+        - drawtype: FILLED_REGION
+          color: F63100
+          item:
+            host: 'Template App Swoole by Zabbix agent'
+            key: swoole.worker.num
+        - sortorder: '1'
+          drawtype: FILLED_REGION
+          color: 199C0D
+          item:
+            host: 'Template App Swoole by Zabbix agent'
+            key: swoole.idle.worker.num
