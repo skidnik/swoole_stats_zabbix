@@ -350,6 +350,99 @@ zabbix_export:
         - macro: '{$SWOOLE.SERVER_STATUS.PORT}'
           value: '8000'
           description: 'swoole server port'
+      dashboards:
+        - uuid: f635849e2e2743de80ecec5241fbebb0
+          name: 'Swoole: stats'
+          pages:
+            - widgets:
+                - type: graph
+                  width: '12'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Template App Swoole by Zabbix agent'
+                        name: 'Swoole: workers count'
+                - type: graph
+                  'y': '5'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Template App Swoole by Zabbix agent'
+                        name: 'Swoole: process cpu utilization'
+                - type: item
+                  x: '12'
+                  width: '12'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'Template App Swoole by Zabbix agent'
+                        key: swoole.connection.num
+                    - type: INTEGER
+                      name: show
+                      value: '1'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                - type: item
+                  x: '12'
+                  'y': '2'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'Template App Swoole by Zabbix agent'
+                        key: swoole.total.recv.bytes
+                    - type: INTEGER
+                      name: show
+                      value: '1'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                - type: graph
+                  x: '12'
+                  'y': '5'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'Template App Swoole by Zabbix agent'
+                        name: 'Swoole: memory usage'
+                - type: item
+                  x: '18'
+                  'y': '2'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'Template App Swoole by Zabbix agent'
+                        key: swoole.total.send.bytes
+                    - type: INTEGER
+                      name: show
+                      value: '1'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
       valuemaps:
         - uuid: fc2d73a4382f4e7094375611cb722961
           name: 'Service state'
