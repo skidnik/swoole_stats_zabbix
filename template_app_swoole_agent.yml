@@ -122,6 +122,32 @@ zabbix_export:
           tags:
             - tag: Application
               value: Swoole
+        - uuid: dc191167690d4c2cb45b45b906d1e6f6
+          name: 'Swoole: number of coroutines'
+          type: DEPENDENT
+          key: swoole.coroutine.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.coroutine_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 8d595535e9fc4ab6a4bf0b6d744d5a87
+          name: 'Swoole: peak number of coroutines'
+          type: DEPENDENT
+          key: swoole.coroutine.peek.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.coroutine_peek_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
         - uuid: e2e044dbe93b46a0996fd8f379fa16c7
           name: 'Swoole: dispatch count'
           type: DEPENDENT
@@ -212,6 +238,19 @@ zabbix_export:
           tags:
             - tag: Application
               value: Swoole
+        - uuid: 68a2905a5f1340f7b1a7a4c460f0f582
+          name: 'Swoole: session round count'
+          type: DEPENDENT
+          key: swoole.session.round
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.session_round
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
         - uuid: 3d6050c8cecb44a986b16573bc944c94
           name: 'Swoole: server startup timestamp'
           type: DEPENDENT
@@ -248,6 +287,19 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.task_worker_num
+          master_item:
+            key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
+          tags:
+            - tag: Application
+              value: Swoole
+        - uuid: 8af0ab769fee4c469e1dd1a5eff1bcda
+          name: 'Swoole: tasking number'
+          type: DEPENDENT
+          key: swoole.tasking.num
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.tasking_num
           master_item:
             key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
           tags:
@@ -376,7 +428,7 @@ zabbix_export:
                         name: 'Swoole: process cpu utilization'
                 - type: item
                   x: '12'
-                  width: '12'
+                  width: '6'
                   fields:
                     - type: ITEM
                       name: itemid
@@ -423,6 +475,24 @@ zabbix_export:
                       value:
                         host: 'Template App Swoole by Zabbix agent'
                         name: 'Swoole: memory usage'
+                - type: item
+                  x: '18'
+                  width: '6'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'Template App Swoole by Zabbix agent'
+                        key: swoole.abort.count
+                    - type: INTEGER
+                      name: show
+                      value: '1'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
                 - type: item
                   x: '18'
                   'y': '2'
