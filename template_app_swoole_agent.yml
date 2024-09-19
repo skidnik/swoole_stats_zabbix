@@ -62,6 +62,7 @@ zabbix_export:
           name: 'Swoole: aborted connection count'
           type: DEPENDENT
           key: swoole.abort.count
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -87,6 +88,7 @@ zabbix_export:
           name: 'Swoole: accepted connection count'
           type: DEPENDENT
           key: swoole.accept.count
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -100,6 +102,7 @@ zabbix_export:
           name: 'Swoole: closed connection count'
           type: DEPENDENT
           key: swoole.close.count
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -113,6 +116,7 @@ zabbix_export:
           name: 'Swoole: number of connections'
           type: DEPENDENT
           key: swoole.connection.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -122,10 +126,31 @@ zabbix_export:
           tags:
             - tag: Application
               value: Swoole
+        - uuid: d154fd28b5d043199d712a94d056c268
+          name: 'Swoole: number of connections per worker'
+          type: CALCULATED
+          key: swoole.connection.per.worker.num
+          params: last(//swoole.connection.num)/last(//swoole.worker.num)
+          tags:
+            - tag: Application
+              value: Swoole
+          triggers:
+            - uuid: f39df1ca89e34f07a04ef5be76c04696
+              expression: 'avg(/Template App Swoole by Zabbix agent/swoole.connection.per.worker.num,5m)>5'
+              name: 'Swoole: number of connections per worker is too high'
+              priority: HIGH
+              description: 'Number of connections per worker of the swoole server has been higher than 5 for five minutes.'
+              dependencies:
+                - name: 'Swoole: failed to fetch stats.'
+                  expression: 'nodata(/Template App Swoole by Zabbix agent/web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"],5m)=1'
+              tags:
+                - tag: Application
+                  value: Swoole
         - uuid: dc191167690d4c2cb45b45b906d1e6f6
           name: 'Swoole: number of coroutines'
           type: DEPENDENT
           key: swoole.coroutine.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -139,6 +164,7 @@ zabbix_export:
           name: 'Swoole: peak number of coroutines'
           type: DEPENDENT
           key: swoole.coroutine.peek.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -152,6 +178,7 @@ zabbix_export:
           name: 'Swoole: dispatch count'
           type: DEPENDENT
           key: swoole.dispatch.count
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -165,6 +192,7 @@ zabbix_export:
           name: 'Swoole: number of idle workers'
           type: DEPENDENT
           key: swoole.idle.worker.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -176,7 +204,7 @@ zabbix_export:
               value: Swoole
           triggers:
             - uuid: 78667e7df90f404ea692caba6e6a82fb
-              expression: 'last(/Template App Swoole by Zabbix agent/swoole.idle.worker.num,#5)<1'
+              expression: 'avg(/Template App Swoole by Zabbix agent/swoole.idle.worker.num,5m)<1'
               name: 'Swoole: no idle workers'
               priority: AVERAGE
               description: 'Swoole server had no idle workers for the last 5 minutes.'
@@ -190,6 +218,7 @@ zabbix_export:
           name: 'Swoole: max_fd'
           type: DEPENDENT
           key: swoole.max.fd
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -203,6 +232,7 @@ zabbix_export:
           name: 'Swoole: min_fd'
           type: DEPENDENT
           key: swoole.min.fd
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -216,6 +246,7 @@ zabbix_export:
           name: 'Swoole: request count'
           type: DEPENDENT
           key: swoole.request.count
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -229,6 +260,7 @@ zabbix_export:
           name: 'Swoole: response count'
           type: DEPENDENT
           key: swoole.response.count
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -242,6 +274,7 @@ zabbix_export:
           name: 'Swoole: session round count'
           type: DEPENDENT
           key: swoole.session.round
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -255,6 +288,7 @@ zabbix_export:
           name: 'Swoole: server startup timestamp'
           type: DEPENDENT
           key: swoole.startup.timestamp
+          delay: '0'
           history: 7d
           units: unixtime
           preprocessing:
@@ -270,6 +304,7 @@ zabbix_export:
           name: 'Swoole: number of idle task workers'
           type: DEPENDENT
           key: swoole.task.idle.worker.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -283,6 +318,7 @@ zabbix_export:
           name: 'Swoole: number of task workers'
           type: DEPENDENT
           key: swoole.task.worker.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -296,6 +332,7 @@ zabbix_export:
           name: 'Swoole: tasking number'
           type: DEPENDENT
           key: swoole.tasking.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -309,6 +346,7 @@ zabbix_export:
           name: 'Swoole: total bytes received'
           type: DEPENDENT
           key: swoole.total.recv.bytes
+          delay: '0'
           units: B
           preprocessing:
             - type: JSONPATH
@@ -323,6 +361,7 @@ zabbix_export:
           name: 'Swoole: total bytes sent'
           type: DEPENDENT
           key: swoole.total.send.bytes
+          delay: '0'
           units: B
           preprocessing:
             - type: JSONPATH
@@ -337,6 +376,7 @@ zabbix_export:
           name: 'Swoole: number of user workers'
           type: DEPENDENT
           key: swoole.user.worker.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -350,6 +390,7 @@ zabbix_export:
           name: 'Swoole: number of workers'
           type: DEPENDENT
           key: swoole.worker.num
+          delay: '0'
           preprocessing:
             - type: JSONPATH
               parameters:
@@ -364,6 +405,7 @@ zabbix_export:
           key: 'web.page.get["{$SWOOLE.SERVER_STATUS.HOST}","{$SWOOLE.SERVER_STATUS.PATH}","{$SWOOLE.SERVER_STATUS.PORT}"]'
           history: 1h
           value_type: TEXT
+          trends: '0'
           description: 'Get raw swoole stats json object.'
           preprocessing:
             - type: REGEX
