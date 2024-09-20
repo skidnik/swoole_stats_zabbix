@@ -1,0 +1,46 @@
+<h1 id="swoole-stats-by-zabbix-agent">Swoole stats by Zabbix Agent</h1>
+<p>Template for monitoring swoole server stats (and some extras) with
+Zabbix, expects output of <a
+href="https://www.php.net/manual/en/swoole-server.stats.php">Swoole::stats</a>
+in JSON format.</p>
+<h2 id="how-to-make-this-work">How to make this work:</h2>
+<p>Import the template on the <strong>Data collection &gt;
+Templates</strong> page.</p>
+<p>Install Zabbix Agent on the host where the swoole server is running,
+or from which the swoole stats will be available (you probably don’t
+want them public).</p>
+<p>Add that host to <strong>Data collection &gt; Hosts</strong>, add the
+imported template to that host.</p>
+<p>In the <strong>Host &gt; Macros</strong> set:</p>
+<ul>
+<li><code>{$SWOOLE.PROCESS_CDMLINE}</code> - full cmdline of the swoole
+server process as shown in <code>ps</code>. For example use the output
+of <code>ps -ax -o args | grep php</code>, mine is
+<code>php8.3 artisan octane:start</code>. Hope you know how you started
+the swoole server. This is used to collect CPU and memory usage with the
+agent itself, not used for gathering swoole stats themselves. May be
+empty or unset, the relevant items just won’t be collected.</li>
+<li><code>{$SWOOLE.PROCESS_USER}</code> - an additional filter for the
+case you have more than one swoole server running. May be empty or
+unset.Probably should not be set with empty
+<code>{$SWOOLE.PROCESS_CDMLINE}</code>, Zabbix Agent may collect all of
+that user’s usage instead of the single swoole server process.</li>
+<li><code>{$SWOOLE.SERVER_STATUS.HOST}</code> - the domain/IP part of
+the swoole stats URL, defaults to <code>localhost</code>.</li>
+<li><code>{$SWOOLE.SERVER_STATUS.PATH}</code> - the URI part of the
+swoole stats URL, defaulst to <code>/swoole-stats</code>.</li>
+<li><code>{$SWOOLE.SERVER_STATUS.PORT}</code> - a port the swoole server
+listens on, defaults to <code>8000</code>.</li>
+</ul>
+<p>The last three items defaults result in
+<code>localhost:8000/swoole-stats</code> the <code>http://</code> part
+is implied by the Zabbix item type used.</p>
+<p>The other important part is to make your swoole server output the
+stats, it’s not the default behaviour. The <a
+href="https://www.php.net/manual/en/swoole-server.stats.php">Swoole::stats</a>
+function outputs the stats array which then must be served as a web page
+in json format for Zabbix to be able to parse it. I have this done by a
+php developer (which I am not) in Laravel Octane. In the end you should
+be able to <code>curl http://localhost:8000/swoole-stats</code> or your
+actual URL from the host where the Agent is installed and the output
+should be a JSON object and nothing else.</p>
