@@ -15,7 +15,7 @@ In the **Host > Macros** set:
  - `{$SWOOLE.PROCESS_CDMLINE}` - full cmdline of the swoole server process as shown in `ps`. For example use the output of `ps -ax -o args | grep php`, mine is `php8.3 artisan octane:start`. Hope you know how you started the swoole server. This is used to collect CPU and memory usage with the agent itself, not used for gathering swoole stats themselves. May be empty or unset, the relevant items just won't be collected.
  - `{$SWOOLE.PROCESS_USER}` - an additional filter for the case you have more than one swoole server running. May be empty or unset.Probably should not be set with empty `{$SWOOLE.PROCESS_CDMLINE}`, Zabbix Agent may collect all of that user's usage instead of the single swoole server process.
  - `{$SWOOLE.SERVER_STATUS.HOST}` - the domain/IP part of the swoole stats URL, defaults to `localhost`.
- - `{$SWOOLE.SERVER_STATUS.PATH}` - the URI part of the swoole stats URL, defaulst to `/swoole-stats`.
+ - `{$SWOOLE.SERVER_STATUS.PATH}` - the URI part of the swoole stats URL, defaults to `/swoole-stats`.
  - `{$SWOOLE.SERVER_STATUS.PORT}` - a port the swoole server listens on, defaults to `8000`.
 
 The last three items defaults result in `localhost:8000/swoole-stats` the `http://` part is implied by the Zabbix item type used.
